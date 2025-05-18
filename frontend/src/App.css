@@ -1,3 +1,37 @@
 .App {
   text-align: center;
 }
+
+#messages {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 450px;
+  overflow-y: scroll;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #f8f9fa;
+}
+
+.message {
+  max-width: 45%;
+  margin: 5px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: justify;
+}
+
+.message.user {
+  align-self: flex-end;
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.message.bot {
+  align-self: flex-start;
+  background-color: #c3d5fa;
+  color: #41464b;
+}

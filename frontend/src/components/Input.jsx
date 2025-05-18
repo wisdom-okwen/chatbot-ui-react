@@ -1,22 +1,21 @@
 import React, { useState }  from "react";
 import { Button } from "./Button";
 
-function Input() {
-    const [inputVal, setInputVal] = useState('');
-
-    const handleInputChange = (event) => {
-        setInputVal(event.target.value);
-    }
-
+function Input({ value, onChange, onSend }) {
     return (
         <div className="flex m-2">
             <input 
                 className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none"
                 placeholder="Enter your question..."
-                onChange={handleInputChange}
-                value={inputVal}
+                onChange={onChange}
+                value={value}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onSend();
+                    }
+                  }}
             />
-            <Button />
+            <Button onSend={onSend}/>
         </div>
     );
 }
