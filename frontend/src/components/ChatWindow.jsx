@@ -1,5 +1,5 @@
 import { marked } from 'marked';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { HeaderBar } from "./HeaderBar";
 import { Input } from "./Input";
 
@@ -8,6 +8,9 @@ function ChatWindow() {
     const [minimized, setMinimized] = useState(false);
     const [inputVal, setInputVal] = useState('');
     const [messages, setMessages] = useState([]);
+    const inputRef = useRef(null);
+    const messagesEndRef = useRef(null);
+
 
     function addMessage(sender, message) {
         const messagesDiv = document.getElementById("messages");
@@ -24,28 +27,49 @@ function ChatWindow() {
     }
 
 
-    const handleSend = () => {
-        addMessage('user', inputVal)
-        addMessage('bot', inputVal)
+    const handleSend = async () => {
+        const userInput = inputVal;
+        setMessages(prev => [...prev, { sender: 'user', text: userInput }]);
         setInputVal("");
+
+        try{  
+            const response = await fetch('http://localhost:3001/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({ message: userInput })
+            });
+
+            
+          const data = await response.json();
+
+          if (response.ok) {
+            setMessages(prev => [...prev, { sender: 'bot', text: data.reply }]);
+          } else {
+            setMessages(prev => [...prev, { sender: 'bot', text: '⚠️ Error from server.' }]);
+          }
+        } catch (err) {
+          console.error(err);
+          setMessages(prev => [...prev, { sender: 'bot', text: '⚠️ Network error.' }]);
+        }
     };
 
-    useEffect(() => {
-        // Code that runs every time `minimized` changes
-        console.log("Minimized changed:", minimized);
-      
+    useEffect(() => {      
         if (!minimized) {
             const messagesDiv = document.getElementById("messages");
             if (messagesDiv) {
               messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }
           }
-        // if (!minimized && inputRef.current) {
-        //     inputRef.current.focus();
-        // }
-          
+        if (!minimized && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [minimized]);
       
-      }, [minimized]);
+    useEffect(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, [messages]);
       
 
     return (
@@ -53,11 +77,23 @@ function ChatWindow() {
             <HeaderBar minimized={minimized} onToggle={() => setMinimized(!minimized)} />
             {!minimized && (
                 <div id='messages' className="flex-1 overflow-auto p-4 text-sm bg-gray-50">
-                    {/* This will be where messages go */}
+                    {messages.map((message, index) => (
+                        <div key={index} className={`message ${message.sender}`}>
+                        <div>
+                            <strong id={message.sender}>
+                            {message.sender === 'user' ? 'You' : 'Bot'}
+                            </strong>
+                            <br />
+                        </div>
+                        <div dangerouslySetInnerHTML={{ __html: marked.parse(message.text) }} />
+                        </div>
+                    ))}
+                    <div ref={messagesEndRef}/>
                 </div>
             )}
             {!minimized && (<div className="p-1 border-t bg-white rounded-lg w-full overflow-hidden">
                 <Input 
+                    inputRef={inputRef}
                     value={inputVal}
                     onChange={(e) => setInputVal(e.target.value)}
                     onSend={handleSend}
