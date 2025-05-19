@@ -22,10 +22,7 @@ const openai = new OpenAI({
 });
 
 app.post('/chat', async (req, res) => {
-    console.log("POST /chat hit");
-
     const { message } = req.body;
-    console.log("Message received:", message);
 
     const messages = [{
         role: 'system',
@@ -50,6 +47,7 @@ app.post('/chat', async (req, res) => {
         model: 'gpt-4o',
         messages,
         temperature: 0.7,
+        max_completion_tokens: 300,
       });
   
       const reply = response.choices[0].message.content.trim();
