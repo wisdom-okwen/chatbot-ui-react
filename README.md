@@ -4,8 +4,8 @@ Every other instruction below follows from this directory
 
 ### Backend
 Run backend server: 
-- Create a new .env file and add env variable OPENAI_API_KEY=... Be sure to replace `...` with open ai api key
 - `cd backend`
+- Create a new .env file and add env variable OPENAI_API_KEY=... Be sure to replace `...` with open ai api key
 - `node server.js`
 
 ### Frontend
